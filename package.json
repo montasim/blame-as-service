@@ -1,12 +1,12 @@
 {
-  "name": "no-as-service",
+  "name": "blame-as-service",
   "version": "1.0.0",
-  "description": "A lightweight API that returns random rejection or no reasons.",
+  "description": "A lightweight API that returns a random developer blame.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
-  "author": "hotheadhacker",
+  "author": "montasim",
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",

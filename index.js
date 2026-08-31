@@ -1,35 +1,54 @@
 const express = require('express');
-const cors = require("cors");
+const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const fs = require('fs');
+const path = require('path');
 
 const app = express();
 app.use(cors());
-app.set('trust proxy', true);
 const PORT = process.env.PORT || 3000;
 
-// Load reasons from JSON
-const reasons = JSON.parse(fs.readFileSync('./reasons.json', 'utf-8'));
+// Trust only a known number of reverse proxies. Direct deployments stay on
+// Express's safer default and ignore client-supplied forwarding headers.
+if (process.env.TRUST_PROXY_HOPS !== undefined) {
+  const trustProxyHops = Number(process.env.TRUST_PROXY_HOPS);
+
+  if (!Number.isInteger(trustProxyHops) || trustProxyHops < 0) {
+    throw new Error('TRUST_PROXY_HOPS must be a non-negative integer.');
+  }
+
+  app.set('trust proxy', trustProxyHops);
+}
+
+// Load blames relative to this file so the service works from any directory.
+const blamesPath = path.join(__dirname, 'blames.json');
+const blames = JSON.parse(fs.readFileSync(blamesPath, 'utf8'));
+
+if (
+  !Array.isArray(blames) ||
+  blames.length === 0 ||
+  blames.some((blame) => typeof blame !== 'string' || blame.trim() === '') ||
+  new Set(blames).size !== blames.length
+) {
+  throw new Error('blames.json must contain unique, non-empty strings.');
+}
 
 // Rate limiter: 120 requests per minute per IP
 const limiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 120,
-  keyGenerator: (req, res) => {
-    return req.headers['cf-connecting-ip'] || req.ip; // Fallback if header missing (or for non-CF)
-  },
   message: { error: "Too many requests, please try again later. (120 reqs/min/IP)" }
 });
 
 app.use(limiter);
 
-// Random rejection reason endpoint
-app.get('/no', (req, res) => {
-  const reason = reasons[Math.floor(Math.random() * reasons.length)];
-  res.json({ reason });
+// Random blame endpoint
+app.get('/blame', (req, res) => {
+  const blame = blames[Math.floor(Math.random() * blames.length)];
+  res.json({ blame });
 });
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`No-as-a-Service is running on port ${PORT}`);
+  console.log(`Blame-as-a-Service is running on port ${PORT}`);
 });

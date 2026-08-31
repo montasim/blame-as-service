@@ -1,3 +1,7 @@
 node_modules/
 assets/
-.dockercontainer.json
+.git/
+.gitignore
+.devcontainer.json
+.env*
+npm-debug.log*
