@@ -1,8 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
-const fs = require('fs');
-const path = require('path');
+const { getRandomBlame } = require('./lib/blames');
 
 const app = express();
 app.use(cors());
@@ -20,19 +19,6 @@ if (process.env.TRUST_PROXY_HOPS !== undefined) {
   app.set('trust proxy', trustProxyHops);
 }
 
-// Load blames relative to this file so the service works from any directory.
-const blamesPath = path.join(__dirname, 'blames.json');
-const blames = JSON.parse(fs.readFileSync(blamesPath, 'utf8'));
-
-if (
-  !Array.isArray(blames) ||
-  blames.length === 0 ||
-  blames.some((blame) => typeof blame !== 'string' || blame.trim() === '') ||
-  new Set(blames).size !== blames.length
-) {
-  throw new Error('blames.json must contain unique, non-empty strings.');
-}
-
 // Rate limiter: 120 requests per minute per IP
 const limiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
@@ -44,8 +30,7 @@ app.use(limiter);
 
 // Random blame endpoint
 app.get('/blame', (req, res) => {
-  const blame = blames[Math.floor(Math.random() * blames.length)];
-  res.json({ blame });
+  res.json({ blame: getRandomBlame() });
 });
 
 // Start server

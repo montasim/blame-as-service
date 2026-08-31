@@ -4,6 +4,7 @@
   "description": "A lightweight API that returns a random developer blame.",
   "main": "index.js",
   "scripts": {
+    "build": "node --check index.js && node --check netlify/functions/blame.mjs",
     "start": "node index.js"
   },
   "author": "montasim",
