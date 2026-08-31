@@ -28,7 +28,7 @@ Built for developers, outages, and humor.
 
 **Base URL**
 ```
-http://localhost:3000/blame
+https://blame-as-a-service.netlify.app/blame
 ```
 
 **Method:** `GET`  
@@ -106,6 +106,7 @@ For reference, here’s the package config:
   "description": "A lightweight API that returns a random developer blame.",
   "main": "index.js",
   "scripts": {
+    "build": "node --check index.js && node --check netlify/functions/blame.mjs",
     "start": "node index.js"
   },
   "author": "montasim",
@@ -127,7 +128,7 @@ If you open this repo in GitHub Codespaces, it will automatically use `.devconta
 ---
 ## Projects Using Blame-as-a-Service
 
-Here are some projects and websites that creatively integrate Blame-as-a-Service to deliver humorous or programmatic developer blame:
+Here are some projects and websites that creatively integrate [Blame-as-a-Service](https://blame-as-a-service.netlify.app/blame) to deliver humorous or programmatic developer blame:
 
 1. **[Your Project Here?](https://github.com/montasim/blame-as-service)**
    If you're using Blame-as-a-Service in your project, open a pull request to be featured here!
